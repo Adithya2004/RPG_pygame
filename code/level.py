@@ -47,11 +47,12 @@ class Level:
 					self.player = Player((x,y),[self.visible_sprites],self.obstacle_sprites)
 		"""
 		self.player = Player((2300,1430),[self.visible_sprites],self.obstacle_sprites)
+	
 	def run(self):
 		# update and draw the game
 		self.visible_sprites.custom_draw(self.player)
 		self.visible_sprites.update()
-		#debug(self.player.direction)
+		debug(self.player.status)
 
 class YSortCameraGroup(pygame.sprite.Group):
 	def __init__(self):
