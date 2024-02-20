@@ -121,7 +121,6 @@ class Player(Entity):
 		if not self.vulnerable:
 			if current_time - self.hurt_time >= self.invincibility_duration:
 				self.vulnerable = True
-				#print(self.health)
 		
 	def animate(self):
 		animation = self.animations[self.status]
@@ -159,9 +158,21 @@ class Player(Entity):
 		weapon_damage = weapon_data[self.weapon]['damage']
 		return base_damage + weapon_damage
 	
+	def get_full_magic_damage(self):
+		base_damage = self.stats['magic']
+		spell_damage = magic_data[self.magic]['strength']
+		return base_damage+spell_damage
+	
+	def EnergyRecovery(self):
+		if self.energy<self.stats['energy']:
+			self.energy+=0.05*self.stats['magic']
+		else:
+			self.energy = self.stats['energy']
+	
 	def update(self):
 		self.input()
 		self.cooldown()
 		self.get_status()
 		self.animate()
 		self.move(self.speed)
+		self.EnergyRecovery()

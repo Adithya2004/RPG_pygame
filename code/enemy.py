@@ -120,7 +120,7 @@ class Enemy(Entity):
 				self.health -= player.get_full_damage()
 				# print(self.health)
 			else:
-				pass
+				self.health -= player.get_full_magic_damage()
 			self.vulnerable = False
 			self.hit_time = pygame.time.get_ticks()
 	

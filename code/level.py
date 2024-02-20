@@ -9,6 +9,7 @@ from weapon import Weapon
 from ui import UI
 from enemy import Enemy
 from particles import *
+from magic import *
 from random import randint 
 
 class Level:
@@ -35,6 +36,7 @@ class Level:
 
 		# Animation Player
 		self.AnimatePlayer = AnimatePlayer()
+		self.magicPlayer = MagicPlayer(self.AnimatePlayer)
 
 	def create_map(self):
 		layouts = {
@@ -87,7 +89,10 @@ class Level:
 		self.current_attack = Weapon(self.player,[self.visible_sprites,self.attack_sprites])
 
 	def create_magic(self,style,strength,cost):
-		pass
+		if style == 'heal':
+			self.magicPlayer.heal(self.player,strength,cost,[self.visible_sprites])
+		if style == 'flame':
+			self.magicPlayer.flames(self.player,strength,cost,[self.visible_sprites,self.attack_sprites])
 
 	def destroy_attack(self):
 		if self.current_attack:
@@ -102,8 +107,7 @@ class Level:
 					for target_sprite in collision_sprites:
 						if target_sprite.sprite_type == 'grass':
 							pos = target_sprite.rect.center
-							off = pygame.Vector2(0,50)
-							#group = 
+							off = pygame.math.Vector2(0,50)
 							for i in range(randint(3,6)):
 								self.AnimatePlayer.create_grass_particle(pos-off,[self.visible_sprites])
 							target_sprite.kill()
