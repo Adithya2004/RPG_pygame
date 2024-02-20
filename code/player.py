@@ -185,9 +185,8 @@ class Player(Entity):
 	def check_death(self):
 		if self.health<=0:
 			return True
-
-	
-			
+		else:
+			return False
 	
 	def update(self):
 		self.input()

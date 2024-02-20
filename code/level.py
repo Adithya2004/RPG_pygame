@@ -12,13 +12,13 @@ from particles import *
 from magic import *
 from random import randint 
 from upg import *
-
 class Level:
 	def __init__(self):
 
 		# get the display surface 
 		self.display_surface = pygame.display.get_surface()
 		self.game_paused = False
+		self.game_state = False
 
 		# sprite group setup
 		self.visible_sprites = YSortCameraGroup()
@@ -124,9 +124,10 @@ class Level:
 							target_sprite.get_damage(self.player,attack_sprite.sprite_type)
 
 	def damage_player(self,amount,attack_type):
-		if self.player.check_death:
+		if self.player.check_death():
+			self.game_state = True
 			self.toggle_menu()
-			self.show_death_screen()
+			
 		if self.player.vulnerable:
 			self.player.health -=amount
 			self.player.vulnerable = False
@@ -136,13 +137,8 @@ class Level:
 
 	def toggle_menu(self):
 		self.game_paused = not self.game_paused
-	def show_death_screen(self):
-		font = pygame.font.Font(None, 36)
-		screen = pygame.display.get_surface()
-		text = font.render("You died!", True, TEXT_COLOR)
-		text_rect = text.get_rect(center=(WIDTH // 2, HEIGTH // 2))
-		screen.fill(UI_BG_COLOR)
-		screen.blit(text,text_rect)
+	
+		
 		
 	def add_xp(self,amount):
 		self.player.exp+=amount

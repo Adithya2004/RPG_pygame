@@ -30,7 +30,6 @@ class Upgrade:
             self.selection_index-=1
             self.can_move = False
             self.selection_time = pygame.time.get_ticks()
-            
 
         if keys[pygame.K_SPACE] and self.can_move:
             self.can_move = False
@@ -54,14 +53,22 @@ class Upgrade:
                 self.can_move = True
     
     def display(self):
-        self.input()
-        self.selection_cooldown()
-        for index,item in enumerate(self.item_list):
-            name = self.attribute_names[index]
-            value = self.player.get_value_by_index(index)
-            max_value = self.max_values[index]
-            cost = self.player.get_cost_by_index(index)
-            item.display(self.display_surface,self.selection_index,name,value,max_value,cost)
+        if not self.player.check_death:
+            self.input()
+            self.selection_cooldown()
+            for index,item in enumerate(self.item_list):
+                name = self.attribute_names[index]
+                value = self.player.get_value_by_index(index)
+                max_value = self.max_values[index]
+                cost = self.player.get_cost_by_index(index)
+                item.display(self.display_surface,self.selection_index,name,value,max_value,cost)
+        else:
+            self.display_surface.fill((0,0,0))
+            color = TEXT_COLOR
+            font = pygame.font.Font(UI_FONT,UI_FONT_SIZE)
+            death_surf = font.render('GAME OVER',False,color)
+            death_rect = death_surf.get_rect(center = (1280/2,360))
+            self.display_surface.blit(death_surf,death_rect)
 
 class Item:
     def __init__(self,l,t,w,h,index,font):

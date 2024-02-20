@@ -23,11 +23,22 @@ class Game:
 				if event.type == pygame.KEYDOWN:
 					if event.key == pygame.K_m:
 						self.level.toggle_menu()
+						
 			self.screen.fill(WATER_COLOR)
 			self.level.run()
 			pygame.display.update()
 			self.clock.tick(FPS)
 
+	def death(self):
+		font = pygame.font.Font(None, 36)
+		text = font.render("You died!", True, TEXT_COLOR)
+		text_rect = text.get_rect(center=(WIDTH // 2, HEIGTH // 2))
+		self.screen.fill(UI_BG_COLOR)
+		self.screen.blit(text,text_rect)
+		pygame.display.update()
+
+
 if __name__ == '__main__':
 	game = Game()
+
 	game.run()
