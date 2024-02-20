@@ -11,12 +11,14 @@ from enemy import Enemy
 from particles import *
 from magic import *
 from random import randint 
+from upg import *
 
 class Level:
 	def __init__(self):
 
 		# get the display surface 
 		self.display_surface = pygame.display.get_surface()
+		self.game_paused = False
 
 		# sprite group setup
 		self.visible_sprites = YSortCameraGroup()
@@ -33,6 +35,7 @@ class Level:
 
 		# user interface 
 		self.ui = UI()
+		self.upg = Upgrade(self.player)
 
 		# Animation Player
 		self.AnimatePlayer = AnimatePlayer()
@@ -82,7 +85,13 @@ class Level:
 								else: 
 									monster_name = 'squid'
 
-								Enemy(monster_name,(x,y),[self.visible_sprites,self.attackable_sprites],self.obstacle_sprites,self.damage_player,self.trigger_death_animation)
+								Enemy(monster_name,
+			  							(x,y),
+										[self.visible_sprites,self.attackable_sprites],
+										self.obstacle_sprites,
+										self.damage_player,
+										self.trigger_death_animation,
+										self.add_xp)
 
 	def create_attack(self):
 		
@@ -115,6 +124,9 @@ class Level:
 							target_sprite.get_damage(self.player,attack_sprite.sprite_type)
 
 	def damage_player(self,amount,attack_type):
+		if self.player.check_death:
+			self.toggle_menu()
+			self.show_death_screen()
 		if self.player.vulnerable:
 			self.player.health -=amount
 			self.player.vulnerable = False
@@ -122,16 +134,33 @@ class Level:
 			#Particles
 			self.AnimatePlayer.create_particle(attack_type,self.player.rect.center,[self.visible_sprites])
 
+	def toggle_menu(self):
+		self.game_paused = not self.game_paused
+	def show_death_screen(self):
+		font = pygame.font.Font(None, 36)
+		screen = pygame.display.get_surface()
+		text = font.render("You died!", True, TEXT_COLOR)
+		text_rect = text.get_rect(center=(WIDTH // 2, HEIGTH // 2))
+		screen.fill(UI_BG_COLOR)
+		screen.blit(text,text_rect)
+		
+	def add_xp(self,amount):
+		self.player.exp+=amount
+	
 	def trigger_death_animation(self,pos,particle_type):
 		self.AnimatePlayer.create_particle(particle_type,pos,self.visible_sprites)
 
 	def run(self):
 		# update and draw the game
 		self.visible_sprites.custom_draw(self.player)
-		self.visible_sprites.update()
-		self.visible_sprites.enemy_update(self.player)
-		self.player_attack_logic()
 		self.ui.display(self.player)
+		if self.game_paused:
+			self.upg.display()
+		else:
+			self.visible_sprites.update()
+			self.visible_sprites.enemy_update(self.player)
+			self.player_attack_logic()
+		
 
 
 class YSortCameraGroup(pygame.sprite.Group):
