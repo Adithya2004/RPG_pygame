@@ -1,8 +1,9 @@
 import pygame
 from support import *
 from settings import *
+from entity import Entity
 
-class Player(pygame.sprite.Sprite):
+class Player(Entity):
 
 	def __init__(self,pos,groups,obstacle_sprites,create_attack,destroy_weapon,create_magic):
 		super().__init__(groups)
@@ -12,10 +13,7 @@ class Player(pygame.sprite.Sprite):
 
 		self.import_player_assets()
 		self.status = 'down'
-		self.frame_index =0 
-		self.animation_speed = 0.10
-
-		self.direction = pygame.math.Vector2()
+		
 		self.hitbox = self.rect.inflate(0,-25)
 		self.speed = 5
 
@@ -88,8 +86,9 @@ class Player(pygame.sprite.Sprite):
 			if keys[pygame.K_e] and self.can_switch_magic:
 				self.can_switch_magic = False
 				self.magic_switch_time = pygame.time.get_ticks()
-				self.magic_index +=1
-				if self.magic_index>len(list(magic_data.keys()))-1:
+				if self.magic_index < len(list(magic_data.keys())) - 1:
+					self.magic_index += 1
+				else:
 					self.magic_index = 0
 				self.magic = list(magic_data.keys())[self.magic_index]
 			
@@ -106,17 +105,16 @@ class Player(pygame.sprite.Sprite):
 	def cooldown(self):
 		current_time = pygame.time.get_ticks()
 		if self.attacking:
-			if current_time - self.attack_time>=self.attack_cooldown:
-				self.attacking=False
+			if current_time - self.attack_time >= self.attack_cooldown:
+				self.attacking = False
 				self.destroy_attack()
 		if not self.can_switch_weapon:
-			if current_time-self.weapon_switch_time>=self.switch_duration_cooldown:
+			if current_time - self.weapon_switch_time >= self.switch_duration_cooldown:
 				self.can_switch_weapon = True
 		if not self.can_switch_magic:
-			if current_time-self.can_switch_magic>=self.switch_duration_cooldown:
+			if current_time - self.magic_switch_time >= self.switch_duration_cooldown:
 				self.can_switch_magic = True
 		
-	
 	def animate(self):
 		animation = self.animations[self.status]
 		
@@ -142,32 +140,6 @@ class Player(pygame.sprite.Sprite):
 		elif 'attack' in self.status:
 			self.status = self.status.replace('_attack','_idle')
 	
-	def move(self,speed):
-		if self.direction.magnitude() != 0:
-			self.direction = self.direction.normalize()
-		self.hitbox.x += self.direction.x * speed
-		self.collision('horizontal')
-		self.hitbox.y += self.direction.y * speed
-		self.collision('vertical')
-		self.rect.center = self.hitbox.center
-
-	def collision(self,direction):
-		if direction == 'horizontal':
-			for sprite in self.obstacle_sprites:
-				if sprite.hitbox.colliderect(self.hitbox):
-					if self.direction.x > 0: # moving right
-						self.hitbox.right = sprite.hitbox.left
-					if self.direction.x < 0: # moving left
-						self.hitbox.left = sprite.hitbox.right
-
-		if direction == 'vertical':
-			for sprite in self.obstacle_sprites:
-				if sprite.hitbox.colliderect(self.hitbox):
-					if self.direction.y > 0: # moving down
-						self.hitbox.bottom = sprite.hitbox.top
-					if self.direction.y < 0: # moving up
-						self.hitbox.top = sprite.hitbox.bottom
-
 	def update(self):
 		self.input()
 		self.cooldown()
